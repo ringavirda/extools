@@ -226,9 +226,11 @@ function Get-ExmodBuildTargets {
 }
 
 # Every test project this repo runs: each mod's, in mod order, then each sample's, then
-# $Manifest.tests, each carrying the series it runs for - every series in the manifest for a mod,
-# the current series only for a sample or an extra project (it buys a legacy lane nothing). Shared
-# by `test` and `build -Tests` so the two commands cannot drift on what "every test project" means.
+# $Manifest.tests, each carrying the series it runs for - every series in the manifest for a mod
+# and for a $Manifest.tests entry (a mod-level test project that simply lives outside its mod's own
+# folder, e.g. exlib's own ExpandedLib.Tests), the current series only for a sample (a legacy lane
+# buys it nothing). Shared by `test` and `build -Tests` so the two commands cannot drift on what
+# "every test project" means.
 function Get-ExmodTestProjects {
   $manifest = Get-ExmodManifest
   $series = @($manifest.series)
@@ -256,7 +258,7 @@ function Get-ExmodTestProjects {
     $proj = Find-SingleCsproj (Resolve-ManifestPath "tests[$i]" $rel) "tests[$i]"
     $name = [IO.Path]::GetFileNameWithoutExtension($proj)
     $id = ($name -replace '\.Tests$', '').ToLowerInvariant()
-    $out[$id] = [pscustomobject]@{ Project = $name; Proj = $proj; Series = $current }
+    $out[$id] = [pscustomobject]@{ Project = $name; Proj = $proj; Series = $series }
     $i++
   }
   return $out
