@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1] - 2026-09-07
+
+`format`, `check` and `clean` no longer fail in a repository whose manifest names no samples
+(the starter, the family). A generated starter is formatted with the pinned CSharpier before its
+first commit.
+
 ## [0.2.0] - 2026-09-07
 
 Two commands for a new repository. `exmod starter <dest>` generates the standalone starter

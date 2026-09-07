@@ -20,7 +20,7 @@
 # sitting beside it (mods/<mod>/tests, samples/<Sample>.Tests) is covered too.
 function Get-ExmodSourceRoots {
   $paths = @((Get-ExmodMods).Values.Path) + @((Get-ExmodSamples).Values.Path)
-  return @($paths | ForEach-Object { Split-Path $_ -Parent } | Select-Object -Unique)
+  return @($paths | Where-Object { $_ } | ForEach-Object { Split-Path $_ -Parent } | Select-Object -Unique)
 }
 
 # Compiles the mod projects (and, with -Tests, the test projects) for one or more game series.

@@ -741,6 +741,10 @@ jobs:
   Set-Content (Join-Path $dest '.gitignore') $StarterGitignore
   ($StarterReadmeTemplate -f $repoName, $version, $repoName) | Set-Content (Join-Path $dest 'README.md')
 
+  # The transformed csproj files carry the samples' layout; the starter ships the pinned formatter's.
+  & (Resolve-CSharpier) format $dest | Out-Host
+  if ($LASTEXITCODE -ne 0) { throw "CSharpier failed over $dest." }
+
   Push-Location $dest
   try {
     if ($isNewRepo) {
