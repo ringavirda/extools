@@ -7,13 +7,17 @@
 
 #region cake
 
-# infra/CakeBuild is a console project, so its targets run through `dotnet run` and take their
-# arguments after the `--`. It resolves everything relative to its own directory (RunWorkingDirectory
-# in CakeBuild.csproj), which is why nothing here passes paths to it.
+# pack/ is a console project, so its targets run through `dotnet run` and take their arguments
+# after the `--`; the repo root goes in as `--repo` so BuildContext resolves every mod and output
+# path against the calling repo rather than this checkout. CakeBuild.csproj needs a
+# VintagestoryAPI.dll to compile against, and since it now lives in its own repository it cannot
+# find one relative to itself, so that goes in too, the same override the csproj already reads for
+# a manual `dotnet run` (`-p:VINTAGE_STORY=`).
 function Invoke-CakeTarget([string]$Target, [string]$Configuration) {
   Push-Location $RepoRoot
   try {
-    $cakeArgs = @('run', '--project', 'infra/CakeBuild', '--', '--repo', $RepoRoot)
+    $game = Resolve-GameInstall $CurrentGameVersion 'server'
+    $cakeArgs = @('run', '--project', (Join-Path $ToolsRoot 'pack'), "-p:VINTAGE_STORY=$game", '--', '--repo', $RepoRoot)
     if ($Target) { $cakeArgs += "--target=$Target" }
     if ($Configuration) { $cakeArgs += "--configuration=$Configuration" }
     dotnet @cakeArgs
@@ -133,7 +137,8 @@ domain layer ExpandedLib.Industry, its test harness ExpandedLib.Testing, and Exp
 the last as a .NET tool, so a consumer gets `exlib-verify` with no game licence, no built mod and
 no test runner.
 
-All four read their version from mods/exlib/src/modinfo.json, so a release bumps one number.
+Each packable project reads its own version (exlib's three from exlib's modinfo.json), so a
+release bumps one number per repository.
 Nothing here pushes to NuGet.org: that is a separate decision, and the step in release.yml that
 would do it is present and commented out.
 '@
@@ -321,7 +326,7 @@ function Invoke-Release([string[]]$Argv) {
     Write-Host '.github/workflows/release.yml runs on a v* tag: it tests the tagged commit, builds'
     Write-Host 'the zips, the bundle and the packages, and attaches them to a GitHub release.'
     Write-Host ''
-    Write-Host 'Afterwards, run infra/tools/gen-released-codes.py so this release joins the block-code'
+    Write-Host 'Afterwards, run tools/gen-released-codes.py from the tools checkout so this release joins the block-code'
     Write-Host 'manifest. dist/Releases keeps only the newest zips, so it is the last chance to record it.'
   } finally {
     Pop-Location

@@ -1,0 +1,17 @@
+<Project>
+  <!-- Central package management: the two verify projects and the packaging build drop their
+       Version attributes and take these rows. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="Cake.Frosting" Version="6.1.0" />
+    <PackageVersion Include="Cake.Json" Version="7.0.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="NuGet.Packaging" Version="7.3.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="7.3.1" />
+  </ItemGroup>
+</Project>

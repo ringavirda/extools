@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  VS_VERSION: "1.22"
+
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Every script parses; a syntax error in a stage file would otherwise surface only when a
+      # consuming repo runs that command.
+      - name: Parse the dispatcher and every stage
+        shell: pwsh
+        run: |
+          $errors = 0
+          foreach ($f in @('exmod.ps1', 'wrappers/exmod.ps1', 'scripts/exmod.ps1') + (Get-ChildItem exmod -Filter *.ps1 | ForEach-Object FullName)) {
+            $tokens = $null; $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f), [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) { $errors++; Write-Host "$f"; $parseErrors | ForEach-Object { Write-Host "  $_" } }
+          }
+          if ($errors -gt 0) { exit 1 }
+      - name: Every command is listed
+        run: bash scripts/exmod.sh help
+
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/cache@v4
+        with:
+          path: .game
+          key: vs-game-${{ env.VS_VERSION }}
+      - name: Provision Vintage Story (server assemblies)
+        run: bash scripts/exmod.sh provision game -Version "$VS_VERSION" -Kind server
+      - name: Test the verify tool
+        run: bash scripts/exmod.sh test latest

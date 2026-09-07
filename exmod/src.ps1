@@ -140,7 +140,7 @@ function Invoke-Test([string[]]$Argv) {
     if ($LASTEXITCODE -ne 0) { throw "Coverage collection failed." }
     $py = (Get-Command python -ErrorAction SilentlyContinue) ?? (Get-Command python3 -ErrorAction SilentlyContinue)
     if (-not $py) { throw "Python is required for the coverage gate but was not found (coverage.xml was still written)." }
-    & $py.Source (Join-Path $RepoRoot 'infra/tools/coverage_gate.py') $cov
+    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov
     if ($LASTEXITCODE -ne 0) { throw "Coverage gate failed." }
     Write-Host "Coverage gate passed."
     return
@@ -281,7 +281,7 @@ function Resolve-CSharpier() {
 
 function Invoke-Format([string[]]$Argv) {
   $check = Get-Flag $Argv '-Check'
-  $dirs = @(Get-ExmodSourceRoots) + @('infra')
+  $dirs = @(Get-ExmodSourceRoots) + @(@('infra') | Where-Object { Test-Path (Join-Path $RepoRoot $_) })
   Push-Location $RepoRoot
   try {
     if ($check -and (git status --porcelain -- @dirs)) {
@@ -387,7 +387,7 @@ function Invoke-Verify([string[]]$Argv) {
   }
 
   $game = Resolve-GameInstall $version 'server'
-  $exlibVerifyProj = Join-Path $RepoRoot 'infra/tools/ExlibVerify/ExlibVerify.csproj'
+  $exlibVerifyProj = Join-Path $ToolsRoot 'verify/ExlibVerify/ExlibVerify.csproj'
 
   $results = @()
   foreach ($n in $names) {
@@ -398,7 +398,7 @@ function Invoke-Verify([string[]]$Argv) {
     if ($json) { $toolArgs += '--json' }
 
     Write-Host "`n-- $n --"
-    dotnet run --project $exlibVerifyProj -- @toolArgs
+    dotnet run --project $exlibVerifyProj -p:GamePath=$game -- @toolArgs
     $exit = $LASTEXITCODE
     $results += [pscustomobject]@{ Name = $n; Ok = ($exit -eq 0); Exit = $exit }
   }
@@ -528,7 +528,7 @@ function Invoke-Check([string[]]$Argv) {
   }
   else {
     $pwshExe = Join-Path $PSHOME "pwsh$ExeSuffix"
-    & $pwshExe -NoProfile -File (Join-Path $RepoRoot 'scripts/exmod.ps1') format -Check
+    & $pwshExe -NoProfile -File (Join-Path $ToolsRoot 'exmod.ps1') -RepoRoot $RepoRoot format -Check
     if ($LASTEXITCODE -eq 0) { $results.format = 'PASS' } else { $results.format = 'FAIL'; $stop = $true }
   }
 

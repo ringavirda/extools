@@ -42,6 +42,9 @@ function Get-ExmodRepoRoot([string]$Override) {
 }
 
 $RepoRoot = Get-ExmodRepoRoot $RepoRoot
+# The tools checkout itself: the stage files, the packaging build, the verify tool and the helper
+# scripts live beside this dispatcher, whatever repository it is driving.
+$ToolsRoot = $PSScriptRoot
 $OnWindows = [System.OperatingSystem]::IsWindows()
 $ExeSuffix = if ($OnWindows) { '.exe' } else { '' }
 

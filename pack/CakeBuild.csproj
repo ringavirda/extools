@@ -21,7 +21,7 @@
     <CakeGamePath Condition="'$(VINTAGE_STORY)' != ''"
       >$(VINTAGE_STORY)</CakeGamePath>
     <CakeGamePath Condition="'$(CakeGamePath)' == ''"
-      >$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../.game/1.22'))</CakeGamePath>
+      >$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../.game/1.22'))</CakeGamePath>
   </PropertyGroup>
 
   <ItemGroup>

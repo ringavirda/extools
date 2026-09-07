@@ -103,7 +103,7 @@ function Invoke-ProvisionDotnet([string[]]$Argv) {
 # regenerable build artifact; the shipped mods still target whatever API the player has installed.
 # Idempotent, and a no-op on versions that lack the member, so it disappears once upstream fixes it.
 function Publicize-GameApi([string]$ApiDll) {
-  $patcher = Join-Path $RepoRoot 'infra/tools/patch-api.cs'
+  $patcher = Join-Path $ToolsRoot 'tools/patch-api.cs'
   if (-not (Test-Path $patcher) -or -not (Test-Path $ApiDll)) { return }
   & dotnet run $patcher -- $ApiDll
   if ($LASTEXITCODE -ne 0) {

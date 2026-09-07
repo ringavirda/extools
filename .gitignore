@@ -1,0 +1,9 @@
+/.game/
+/.gamedata/
+/.dotnet/
+/.extools/
+[Bb]in/
+[Oo]bj/
+*.log
+.vs/
+.idea/
