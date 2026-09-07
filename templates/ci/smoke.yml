@@ -1,6 +1,6 @@
 # The smoke lane for a mod that isn't this repo: boots the real Vintage Story dedicated server with
 # your built mod and fails the job on any [Error]/[Fatal] line or a non-clean /exmod verify. Copy
-# scripts/exmod.sh and scripts/exmod.ps1 from this repo into your own - the whole CLI comes with
+# wrappers/exmod.sh and wrappers/exmod.ps1 from extools into your scripts/ - the whole CLI comes with
 # those two files, nothing else to copy - add an exmod.json naming your own mods, and drop this file
 # in as .github/workflows/smoke.yml, then make the two edits marked CHANGE below.
 
