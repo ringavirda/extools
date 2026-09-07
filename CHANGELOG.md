@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.3] - 2026-09-07
+
+The manifest names the coverage floors file (`coverageFloors`, default `infra/test/coverage-floors.json`),
+and `format`, `check` and `clean` cover the parents of its `tests` entries, so a repository whose
+tests are not under a mod folder is formatted whole. A manifest tests entry runs across every
+declared series. A generated tests workflow provisions the dependency mods before the tests; a
+generated starter is formatted with the same two passes as `exmod format` and follows exlib's
+current samples and layout.
+
 ## [0.2.2] - 2026-09-07
 
 A generated tests workflow provisions the dependency mods before the tests, so the harness guards
