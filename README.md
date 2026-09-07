@@ -65,6 +65,11 @@ package-mode `PackageReference` - the shape `exmod setup` produces, never a work
 `modinfo.json` beside it, no `src/` split) rather than in this shape, since they are generated from
 the samples directly; both shapes resolve the same way.
 
+## Branches
+
+Day-to-day work lands on `dev`. `main` moves by fast-forward when a batch is green locally, and
+that push is what runs CI; tags are cut from `main`. Push `dev` freely, it runs nothing.
+
 ## Releasing
 
 Bump `"tools"` in `exmod.json` (it is also `exlib-verify`'s package version), note the change in
