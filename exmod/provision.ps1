@@ -138,7 +138,9 @@ function Invoke-ProvisionGame([string[]]$Argv) {
   # launch track the latest patch while the build's compatibility floor stays pinned at the series .0.
   if ($version -match '^\d+\.\d+$') {
     Write-Host "Resolving newest stable patch for series $version"
-    $json = Invoke-RestMethod -Uri 'https://api.vintagestory.at/stable.json' -UseBasicParsing
+    # A bounded wait: the API has been seen to stall for minutes from a cloud runner, and a hung
+    # provision blocks every step behind it.
+    $json = Invoke-RestMethod -Uri 'https://api.vintagestory.at/stable.json' -UseBasicParsing -TimeoutSec 60 -MaximumRetryCount 2 -RetryIntervalSec 5
     $cands = @($json.PSObject.Properties.Name | Where-Object { $_ -like "$version.*" })
     if (-not $cands) { throw "No stable release found for series $version." }
     $version = ($cands | Sort-Object { [version]$_ } -Descending | Select-Object -First 1)
@@ -212,7 +214,7 @@ function Invoke-ProvisionGame([string[]]$Argv) {
       Write-Host "Downloading $Url"
       $tmp = "$OutFile.part"
       try {
-        Invoke-WebRequest -Uri $Url -OutFile $tmp -UseBasicParsing
+        Invoke-WebRequest -Uri $Url -OutFile $tmp -UseBasicParsing -TimeoutSec 600 -MaximumRetryCount 2 -RetryIntervalSec 5
         Move-Item -Force $tmp $OutFile
       } catch {
         if (Test-Path $tmp) { Remove-Item -Force $tmp }
