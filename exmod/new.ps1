@@ -526,8 +526,8 @@ function Invoke-Starter([string[]]$Argv) {
 
   Assert-StarterDest $dest $RepoRoot $ToolsRoot $exlibRoot $force
 
-  $exlibModinfoPath = Join-Path $exlibRoot 'src/modinfo.json'
-  if (-not (Test-Path $exlibModinfoPath)) { throw "exlib checkout at $exlibRoot has no src/modinfo.json." }
+  $exlibModinfoPath = Join-Path $exlibRoot 'src/ExpandedLib/modinfo.json'
+  if (-not (Test-Path $exlibModinfoPath)) { throw "exlib checkout at $exlibRoot has no src/ExpandedLib/modinfo.json." }
   $exlibVersion = (Get-Content $exlibModinfoPath -Raw | ConvertFrom-Json).version
   $version = Get-Opt $Argv '-Version' $exlibVersion
 
@@ -791,7 +791,7 @@ written by this command itself.
 
   -ExlibRoot   the exlib checkout to read from; defaults to the workspace sibling ../exlib
   -Version     the ExpandedLib package version to pin; defaults to the exlib checkout's own
-               src/modinfo.json version
+               src/ExpandedLib/modinfo.json version
   -Force       generate into a non-empty <dest> that carries no marker of a previous starter run
 
 <dest> is regenerated in place on a second run: every path this command owns is wiped and
