@@ -1,0 +1,5 @@
+<Project>
+  <!-- Ends the upward search for Directory.Build.props here. A consumer clones this repository into
+       its own tree (.extools/), and without this file every project and file-based tool under it
+       would take that repository's build logic, including its auto-provisioning targets. -->
+</Project>

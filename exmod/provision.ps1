@@ -160,7 +160,14 @@ function Invoke-ProvisionGame([string[]]$Argv) {
   # is still acquired and the markers below are re-checked, so it is safe to ignore.
   $mutexName = ($OnWindows ? 'Local\' : '') + "vs-provision-$($slug -replace '[^\w]', '_')"
   $lock = [System.Threading.Mutex]::new($false, $mutexName)
-  try { [void]$lock.WaitOne() } catch [System.Threading.AbandonedMutexException] { }
+  # The wait is bounded: a provision that re-enters itself (a build under this checkout
+  # auto-provisioning while the lock is held) fails with the cause instead of hanging.
+  $acquired = $false
+  try { $acquired = $lock.WaitOne([TimeSpan]::FromMinutes(20)) } catch [System.Threading.AbandonedMutexException] { $acquired = $true }
+  if (-not $acquired) {
+    $lock.Dispose()
+    throw "Another provision of series $slug has held its lock for 20 minutes - a build under this checkout is auto-provisioning while this provision runs, or an earlier one hung. Check for a stuck 'exmod provision game' and retry."
+  }
 
   try {
     # VintagestoryAPI.dll is in every archive; a client additionally carries the client entry assembly.
