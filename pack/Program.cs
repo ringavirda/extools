@@ -130,9 +130,20 @@ public class BuildContext : FrostingContext {
 
   /// <summary>The path beside <paramref name="modFolder"/> named <paramref name="name"/> -
   /// ExpandedLib.Industry, ExpandedLib.Testing and ExpandedLib.Generators sit under src/ as
-  /// siblings of exlib's own project folder (src/ExpandedLib), not beneath it.</summary>
-  public static string Sibling(string modFolder, string name) =>
-    $"{Path.GetDirectoryName(modFolder)?.Replace('\\', '/')}/{name}";
+  /// siblings of exlib's own project folder (src/ExpandedLib), not beneath it. Throws if
+  /// <paramref name="modFolder"/> has no parent segment (e.g. a manifest path of "."), which
+  /// would otherwise resolve to a path rooted outside the repo - this tooling requires a manifest
+  /// where a mod's path is nested under a parent folder, as exlib's own has been since it moved
+  /// to src/ExpandedLib.</summary>
+  public static string Sibling(string modFolder, string name) {
+    string? parent = Path.GetDirectoryName(modFolder);
+    if (string.IsNullOrEmpty(parent))
+      throw new InvalidOperationException(
+        $"Cannot resolve a sibling of \"{modFolder}\": it has no parent directory. "
+          + "The manifest must give this mod a path nested under a parent folder."
+      );
+    return $"{parent.Replace('\\', '/')}/{name}";
+  }
 
   /// <summary>The publish output for a project+target. The current version uses the flat
   /// Mods/mod path; legacy targets append their TFM (see the mod csproj OutputPath).</summary>

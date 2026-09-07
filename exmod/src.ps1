@@ -252,9 +252,10 @@ projects and building them at once races on the same intermediate assemblies.
 
 #region format
 
-# Formats every C# file under mods/ and infra/ in two passes, and the order is load-bearing. CSharpier
-# wraps lines to the printWidth in .csharpierrc but always emits Allman braces and cannot be
-# configured; dotnet format then applies .editorconfig, which moves the braces onto the same line.
+# Formats every C# file under the manifest's mods, samples and tests entries, and under infra/, in
+# two passes, and the order is load-bearing. CSharpier wraps lines to the printWidth in
+# .csharpierrc but always emits Allman braces and cannot be configured; dotnet format then applies
+# .editorconfig, which moves the braces onto the same line.
 # Running the pair is idempotent. Running CSharpier alone afterwards would undo the brace style.
 #
 # `csharpier check` exits 1 on the finished result, so -Check formats and compares against git rather
@@ -320,10 +321,10 @@ Add-ExmodCommand -Group source -Name format -Summary 'rewrite with CSharpier, th
 } -Detail @'
 exmod format [-Check]
 
-Formats every C# file under every mod and sample directory the manifest names, and under infra/, in
-two passes, and the order is load-bearing: CSharpier wraps lines but always emits Allman braces and
-cannot be configured out of it, then dotnet format applies .editorconfig and puts the braces back.
-The pair is idempotent; CSharpier alone afterwards would undo the brace style.
+Formats every C# file under every mod, sample and tests directory the manifest names, and under
+infra/, in two passes, and the order is load-bearing: CSharpier wraps lines but always emits Allman
+braces and cannot be configured out of it, then dotnet format applies .editorconfig and puts the
+braces back. The pair is idempotent; CSharpier alone afterwards would undo the brace style.
 
   -Check   format, then fail if git sees a change. It needs a clean tree and refuses on a dirty
            one, where every finding would be an edit of your own.
@@ -644,10 +645,10 @@ Add-ExmodCommand -Group source -Name clean -Summary 'delete build output (bin/ob
 } -Detail @'
 exmod clean [-Deep]
 
-Deletes build output: every bin/ and obj/ under mods/, samples/, infra/ and templates/, plus the
-root-level TestResults/ folder and any coverage.* file. Never touches .game/, .dotnet/ or
-.compat/ - those are expensive downloads, and `exmod provision -Force` is how they get replaced,
-not this command.
+Deletes build output: every bin/ and obj/ under the manifest's mods, samples and tests entries,
+and under infra/ and templates/, plus the root-level TestResults/ folder and any coverage.* file.
+Never touches .game/, .dotnet/ or .compat/ - those are expensive downloads, and `exmod provision
+-Force` is how they get replaced, not this command.
 
   -Deep   also remove dist/Releases, dist/nuget, dist/assets, and .gamedata/Cache and
           .gamedata/Logs. Never Saves/, Backups/, BackupSaves/ or Playerdata/ under .gamedata -
