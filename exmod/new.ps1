@@ -744,9 +744,12 @@ jobs:
   Set-Content (Join-Path $dest '.gitignore') $StarterGitignore
   ($StarterReadmeTemplate -f $repoName, $version, $repoName) | Set-Content (Join-Path $dest 'README.md')
 
-  # The transformed csproj files carry the samples' layout; the starter ships the pinned formatter's.
+  # The same two passes as `exmod format`: CSharpier wraps to the print width and emits Allman
+  # braces, then dotnet format applies the copied .editorconfig, which puts the braces back.
   & (Resolve-CSharpier) format $dest | Out-Host
   if ($LASTEXITCODE -ne 0) { throw "CSharpier failed over $dest." }
+  dotnet format whitespace $dest --folder | Out-Host
+  if ($LASTEXITCODE -ne 0) { throw "dotnet format failed over $dest." }
 
   Push-Location $dest
   try {
