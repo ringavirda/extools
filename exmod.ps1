@@ -371,7 +371,7 @@ function Get-BuiltModDirs([string]$Configuration = 'Debug') {
     $built = Join-Path $srcDir "bin/$Configuration/Mods/mod"
     if (-not (Test-Path (Join-Path $built 'modinfo.json'))) {
       Write-Host "Building $($target.Key) (not yet built) ..."
-      dotnet build $target.Value -c $Configuration -clp:ErrorsOnly
+      dotnet build $target.Value -c $Configuration -clp:ErrorsOnly | Out-Host
       if ($LASTEXITCODE -ne 0) { throw "Build of $($target.Value) failed." }
     }
     $out += $built
@@ -474,7 +474,7 @@ function Resolve-OneDependency([string]$Id, [string]$Floor, [string]$Configurati
     $built = Join-Path $srcDir "bin/$Configuration/Mods/mod"
     if (-not (Test-Path (Join-Path $built 'modinfo.json'))) {
       Write-Host "Building $Id (workspace sibling, not yet built) ..."
-      dotnet build $siblingProject -c $Configuration -clp:ErrorsOnly
+      dotnet build $siblingProject -c $Configuration -clp:ErrorsOnly | Out-Host
       if ($LASTEXITCODE -ne 0) { throw "Build of $siblingProject failed." }
     }
     Write-Host "$Id : workspace sibling, built output at $built"

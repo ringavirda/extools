@@ -105,7 +105,7 @@ function Invoke-ProvisionDotnet([string[]]$Argv) {
 function Publicize-GameApi([string]$ApiDll) {
   $patcher = Join-Path $ToolsRoot 'tools/patch-api.cs'
   if (-not (Test-Path $patcher) -or -not (Test-Path $ApiDll)) { return }
-  & dotnet run $patcher -- $ApiDll
+  & dotnet run $patcher -- $ApiDll | Out-Host
   if ($LASTEXITCODE -ne 0) {
     Write-Host "patch-api failed ($LASTEXITCODE); IPlayer cannot be mocked on this install." -ForegroundColor Yellow
   }
@@ -239,7 +239,7 @@ function Invoke-ProvisionGame([string[]]$Argv) {
       Write-Host "Extracting $name to $dest"
       if (Test-Path $destFull) { Remove-Item -Recurse -Force $destFull }
       New-Item -ItemType Directory -Force -Path $destFull | Out-Null
-      & tar -xzf $tarball -C $destFull
+      & tar -xzf $tarball -C $destFull | Out-Host
       if ($LASTEXITCODE -ne 0) { throw "tar failed extracting $name." }
     }
     elseif ($kind -eq 'server') {

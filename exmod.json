@@ -1,5 +1,5 @@
 {
-  "tools": "0.1.1",
+  "tools": "0.1.2",
   "series": ["1.22"],
   "tests": ["verify/ExlibVerify.Tests"]
 }

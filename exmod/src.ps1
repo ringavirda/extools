@@ -140,7 +140,7 @@ function Invoke-Test([string[]]$Argv) {
     if ($LASTEXITCODE -ne 0) { throw "Coverage collection failed." }
     $py = (Get-Command python -ErrorAction SilentlyContinue) ?? (Get-Command python3 -ErrorAction SilentlyContinue)
     if (-not $py) { throw "Python is required for the coverage gate but was not found (coverage.xml was still written)." }
-    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov
+    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov (Join-Path $RepoRoot 'infra/test/coverage-floors.json')
     if ($LASTEXITCODE -ne 0) { throw "Coverage gate failed." }
     Write-Host "Coverage gate passed."
     return

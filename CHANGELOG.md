@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2] - 2026-09-07
+
+Output of a build or an archive extraction run inside a helper that returns paths no longer joins
+the returned list; the smoke lane on a fresh checkout failed on an empty path where a build had
+printed a line. The coverage gate reads the floors file by an explicit path under the repository
+root instead of the working directory.
+
 ## [0.1.1] - 2026-09-07
 
 A checkout of this repository ends MSBuild's search for Directory.Build.props and .targets, so a
