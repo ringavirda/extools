@@ -168,7 +168,7 @@ function Get-ExmodManifest {
     if (-not $m.PSObject.Properties[$p]) { $m | Add-Member -NotePropertyName $p -NotePropertyValue @() }
   }
   if (-not $m.PSObject.Properties['coverageFloors']) {
-    $m | Add-Member -NotePropertyName coverageFloors -NotePropertyValue 'infra/test/coverage-floors.json'
+    $m | Add-Member -NotePropertyName coverageFloors -NotePropertyValue 'tests/coverage-floors.json'
   }
 
   $Script:ExmodManifestCache = $m
@@ -277,7 +277,7 @@ function Get-ExmodPackages {
   return $out
 }
 
-# The coverage floors file: $Manifest.coverageFloors, defaulting to infra/test/coverage-floors.json.
+# The coverage floors file: $Manifest.coverageFloors, defaulting to tests/coverage-floors.json.
 function Get-ExmodCoverageFloors {
   $manifest = Get-ExmodManifest
   return Resolve-ManifestPath 'coverageFloors' $manifest.coverageFloors
