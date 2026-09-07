@@ -154,16 +154,14 @@ function ConvertTo-StarterModCsproj([string]$Text, [string]$Label) {
 
   $Text = Set-CsprojText $Text @'
   <!-- Imported last so the properties it needs from the project body ($(TargetFramework),
-       $(AssetDomain) - unset here, so its asset globs stay inert) are already evaluated; see
-       ExpandedLib.targets for what this pulls in (GamePath, provisioning, the capability
-       constants). This project carries no AssetDomain of its own, so its assets/ (a direct sibling
-       of the csproj, not one level up under src/) is still globbed by hand below. Source mode only,
-       same reason as the .props import above. -->
+       $(AssetDomain)) are already evaluated; see ExpandedLib.targets for what this pulls in
+       (GamePath, provisioning, the capability constants, and - since $(AssetDomain) is set above -
+       the assets/ content glob and the AdditionalFiles feed for ExLangKeyGenerator). Source mode
+       only, same reason as the .props import above. -->
   <Import
     Project="../../build/ExpandedLib.targets"
     Condition="'$(ExlibRoot)' != ''"
   />
-
 
 '@ '' "$Label build/ExpandedLib.targets import"
 
