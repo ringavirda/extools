@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0] - 2026-09-07
+
+Two commands for a new repository. `exmod starter <dest>` generates the standalone starter
+repository from exlib's HelloModule and HelloExpanded samples: the four csproj files and each
+modinfo are transformed from the samples' own text (package mode, versions pinned to the exlib
+checkout), and the command writes the solution, the launchers, the manifest, the packages props,
+CI pinned to a game patch, the dotfiles, an MIT licence template and a README. A re-run
+regenerates what it owns and carries forward every mod added since. `exmod new <modid>` scaffolds
+an empty mod, or with `--module` an exlib module, into the current repository and registers it in
+the manifest and the solution.
+
 ## [0.1.2] - 2026-09-07
 
 Output of a build or an archive extraction run inside a helper that returns paths no longer joins

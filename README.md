@@ -27,7 +27,7 @@ the Expanded Library wiki under Getting Started, "exmod in your repo".
 
 ```
 exmod.ps1        the dispatcher: argument helpers, the manifest resolvers, command registration, help
-exmod/           one file per lifecycle stage: provision, src, run, dist, windows
+exmod/           one file per lifecycle stage: provision, new, src, run, dist, windows
 wrappers/        the two launchers a consuming repository checks in
 scripts/         the launchers again, pointed at this checkout, so extools drives itself
 pack/            the packaging build (Cake Frosting), manifest-driven
@@ -35,6 +35,35 @@ verify/          exlib-verify, a .NET tool that checks a mod's shipped assets wi
 tools/           the API publicizer provisioning applies, the coverage gate, the released-codes derivation
 templates/ci/    GitHub Actions templates for a consuming repository
 ```
+
+## Starter
+
+`exmod starter <dest>` generates a standalone starter monorepo at `<dest>`: exlib's HelloModule and
+HelloExpanded samples as two mods (`mods/hellomodule`, `mods/helloexpanded`), their tests, a
+solution, the launcher scripts, an `exmod.json` naming them, a `Directory.Packages.props` pinned to
+the exlib version it was generated from, CI and the repo dotfiles - a repository that clones,
+restores from NuGet, builds, tests and smokes with nothing hand-edited. `-ExlibRoot` points it at
+an exlib checkout other than the workspace sibling `../exlib`; `-Version` pins a different
+`ExpandedLib` version than that checkout's own; `-Force` allows generating into a non-empty `<dest>`
+that carries no marker of a previous run. The four mod/test csprojs and each mod's `modinfo.json`
+are generated from the samples' own files by a text transform, never a hand-maintained template, so
+they cannot drift from what exlib's own gate already proves; the solution, `Directory.Packages.props`,
+CI, the dotfiles and the README are written by the command itself. Re-running it over an existing
+`<dest>` overwrites every path it owns and carries forward any mod `exmod new` has added since into
+the fresh manifest and solution; `git status --porcelain` in `<dest>` afterward reports what
+changed, including any of the owner's own unrelated edits.
+
+`exmod new <modid>` scaffolds an empty mod into the current repository (the one its own `exmod.json`
+names) - a package-mode csproj under `mods/<modid>/src`, `modinfo.json`, an asset skeleton and a
+test project wired to the harness - and adds it to `exmod.json` and, when the repository names a
+solution, to it too. `--module` scaffolds a framework module instead, the shape `samples/HelloModule`
+and the starter both carry: `[assembly: ExModule]`, an `IExModule` entry point and the empty
+`ModSystem` the engine's Code-mod loader requires. It needs a root `Directory.Packages.props`
+carrying an `ExpandedLib` `PackageVersion` to pin against, and always scaffolds a versionless,
+package-mode `PackageReference` - the shape `exmod setup` produces, never a workspace
+`ProjectReference`. A generated starter's own two mods sit flat (`mods/<id>/<Name>.csproj`,
+`modinfo.json` beside it, no `src/` split) rather than in this shape, since they are generated from
+the samples directly; both shapes resolve the same way.
 
 ## Releasing
 
