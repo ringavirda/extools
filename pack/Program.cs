@@ -329,7 +329,7 @@ public sealed class PackageTestingTask : FrostingTask<BuildContext> {
     + "XML docs (exlib.xml, ExpandedLib.Testing.xml) sit beside their DLLs - keep them there for\n"
     + "IntelliSense over the public surface.\n"
     + "\n"
-    + "See the wiki: https://github.com/ringavirda/modding-vsexpanded/wiki/Testing-Harness\n";
+    + "See the wiki: https://github.com/ringavirda/modding-vsexmods/wiki/Testing-Harness\n";
 
   public override void Run(BuildContext context) {
     var current = Array.Find(BuildContext.GameTargets, t => t.IsCurrent)!;

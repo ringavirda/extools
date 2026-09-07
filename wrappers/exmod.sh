@@ -30,7 +30,7 @@ resolve_extools() {
     echo 'exmod: no extools checkout found (EXTOOLS_HOME, ../extools) and exmod.json pins no "tools" version' >&2
     exit 1
   fi
-  local dest="$repo_root/.extools" url="${EXTOOLS_URL:-https://github.com/ringavirda/extools.git}" tag="v$version"
+  local dest="$repo_root/.extools" url="${EXTOOLS_URL:-https://github.com/ringavirda/modding-vsextools.git}" tag="v$version"
   if [[ -f "$dest/exmod.ps1" ]]; then
     local have
     have="$(git -C "$dest" describe --tags --exact-match 2>/dev/null || true)"

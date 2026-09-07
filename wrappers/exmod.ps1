@@ -30,7 +30,7 @@ function Resolve-Extools {
     throw 'no extools checkout found (EXTOOLS_HOME, ../extools) and exmod.json pins no "tools" version'
   }
   $dest = Join-Path $repoRoot '.extools'
-  $url = if ($env:EXTOOLS_URL) { $env:EXTOOLS_URL } else { 'https://github.com/ringavirda/extools.git' }
+  $url = if ($env:EXTOOLS_URL) { $env:EXTOOLS_URL } else { 'https://github.com/ringavirda/modding-vsextools.git' }
   $tag = "v$version"
   if (Test-Path (Join-Path $dest 'exmod.ps1')) {
     $have = (& git -C $dest describe --tags --exact-match 2>$null)
