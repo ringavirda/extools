@@ -13,13 +13,16 @@
 # Get-ExmodTestProjects and Get-ExmodBuildTargets live in exmod.ps1: they read the manifest, so
 # every stage that needs "every test project" or "every mod/sample" shares the one resolver.
 
-# The directories holding the manifest's mods and samples - what format, clean and check treat as
-# this repo's own source, as opposed to infra/ and templates/, which stay literal: they are tool
-# conventions, true of every repo this CLI runs in, not something exmod.json names. A mod or sample's
-# own parent (mods/, samples/) is walked whole rather than just its own path, so a test project
-# sitting beside it (mods/<mod>/tests, samples/<Sample>.Tests) is covered too.
+# The directories holding the manifest's mods, samples and standalone test projects - what format,
+# clean and check treat as this repo's own source, as opposed to infra/ and templates/, which stay
+# literal: they are tool conventions, true of every repo this CLI runs in, not something exmod.json
+# names. A mod or sample's own parent (mods/, samples/) is walked whole rather than just its own
+# path, so a test project sitting beside it (mods/<mod>/tests, samples/<Sample>.Tests) is covered
+# too. $Manifest.tests entries (e.g. tests/ExpandedLib.Tests) contribute their own parent (tests/)
+# the same way, so a repository whose tests live outside any mod folder is still covered.
 function Get-ExmodSourceRoots {
-  $paths = @((Get-ExmodMods).Values.Path) + @((Get-ExmodSamples).Values.Path)
+  $manifest = Get-ExmodManifest
+  $paths = @((Get-ExmodMods).Values.Path) + @((Get-ExmodSamples).Values.Path) + @($manifest.tests | ForEach-Object { Join-Path $RepoRoot $_ })
   return @($paths | Where-Object { $_ } | ForEach-Object { Split-Path $_ -Parent } | Select-Object -Unique)
 }
 
@@ -140,7 +143,7 @@ function Invoke-Test([string[]]$Argv) {
     if ($LASTEXITCODE -ne 0) { throw "Coverage collection failed." }
     $py = (Get-Command python -ErrorAction SilentlyContinue) ?? (Get-Command python3 -ErrorAction SilentlyContinue)
     if (-not $py) { throw "Python is required for the coverage gate but was not found (coverage.xml was still written)." }
-    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov (Join-Path $RepoRoot 'infra/test/coverage-floors.json')
+    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov (Get-ExmodCoverageFloors)
     if ($LASTEXITCODE -ne 0) { throw "Coverage gate failed." }
     Write-Host "Coverage gate passed."
     return
@@ -242,7 +245,7 @@ projects and building them at once races on the same intermediate assemblies.
               Name=X|Name=Y, or a bare class name (an unqualified term is a substring match)
   -Throttle   lanes to run at once; the default is all of them
   -Coverage   instead of the lanes, collect cobertura over the solution and ratchet it against
-              infra/test/coverage-floors.json - the same gate CI runs
+              the manifest's coverageFloors file - the same gate CI runs
 '@
 
 #endregion

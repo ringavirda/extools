@@ -167,6 +167,9 @@ function Get-ExmodManifest {
   foreach ($p in @('tests', 'packages')) {
     if (-not $m.PSObject.Properties[$p]) { $m | Add-Member -NotePropertyName $p -NotePropertyValue @() }
   }
+  if (-not $m.PSObject.Properties['coverageFloors']) {
+    $m | Add-Member -NotePropertyName coverageFloors -NotePropertyValue 'infra/test/coverage-floors.json'
+  }
 
   $Script:ExmodManifestCache = $m
   return $m
@@ -270,6 +273,12 @@ function Get-ExmodPackages {
     $i++
   }
   return $out
+}
+
+# The coverage floors file: $Manifest.coverageFloors, defaulting to infra/test/coverage-floors.json.
+function Get-ExmodCoverageFloors {
+  $manifest = Get-ExmodManifest
+  return Resolve-ManifestPath 'coverageFloors' $manifest.coverageFloors
 }
 
 # The solution: $Manifest.solution, or the single .sln at the repo root when the manifest names none.

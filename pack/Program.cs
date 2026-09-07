@@ -128,6 +128,12 @@ public class BuildContext : FrostingContext {
   public string Repo(string relativePath) =>
     Path.Combine(RepoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
+  /// <summary>The path beside <paramref name="modFolder"/> named <paramref name="name"/> -
+  /// ExpandedLib.Industry, ExpandedLib.Testing and ExpandedLib.Generators sit under src/ as
+  /// siblings of exlib's own project folder (src/ExpandedLib), not beneath it.</summary>
+  public static string Sibling(string modFolder, string name) =>
+    $"{Path.GetDirectoryName(modFolder)?.Replace('\\', '/')}/{name}";
+
   /// <summary>The publish output for a project+target. The current version uses the flat
   /// Mods/mod path; legacy targets append their TFM (see the mod csproj OutputPath).</summary>
   public string PublishDir(ModProject project, GameTarget target) =>
@@ -194,7 +200,9 @@ public sealed class BuildTask : FrostingTask<BuildContext> {
         // extra copy step.
         if (project.Id == "exlib") {
           context.DotNetPublish(
-            context.Repo($"{project.ModFolder}/industry/ExpandedLib.Industry.csproj"),
+            context.Repo(
+              $"{BuildContext.Sibling(project.ModFolder, "ExpandedLib.Industry")}/ExpandedLib.Industry.csproj"
+            ),
             new DotNetPublishSettings {
               Configuration = context.BuildConfiguration,
               Framework = target.Tfm,
@@ -337,7 +345,9 @@ public sealed class PackageTestingTask : FrostingTask<BuildContext> {
 
     // Build the harness for the current target (single-TFM => flat bin/<config> output).
     context.DotNetBuild(
-      context.Repo($"{exlib.ModFolder}/testing/ExpandedLib.Testing.csproj"),
+      context.Repo(
+        $"{BuildContext.Sibling(exlib.ModFolder, "ExpandedLib.Testing")}/ExpandedLib.Testing.csproj"
+      ),
       new DotNetBuildSettings {
         Configuration = context.BuildConfiguration,
         Framework = current.Tfm,
@@ -351,7 +361,9 @@ public sealed class PackageTestingTask : FrostingTask<BuildContext> {
     context.EnsureDirectoryExists(stageDir);
 
     context.CopyFile(
-      context.Repo($"{exlib.ModFolder}/testing/bin/{context.BuildConfiguration}/ExpandedLib.Testing.dll"),
+      context.Repo(
+        $"{BuildContext.Sibling(exlib.ModFolder, "ExpandedLib.Testing")}/bin/{context.BuildConfiguration}/ExpandedLib.Testing.dll"
+      ),
       $"{stageDir}/ExpandedLib.Testing.dll"
     );
     // exlib.dll comes from exlib's own publish output (the harness references it Private=false, so
@@ -366,7 +378,9 @@ public sealed class PackageTestingTask : FrostingTask<BuildContext> {
     // here too. Copied best-effort: an older build tree may predate GenerateDocumentationFile.
     CopyDocsIfPresent(
       context,
-      context.Repo($"{exlib.ModFolder}/testing/bin/{context.BuildConfiguration}/ExpandedLib.Testing.xml"),
+      context.Repo(
+        $"{BuildContext.Sibling(exlib.ModFolder, "ExpandedLib.Testing")}/bin/{context.BuildConfiguration}/ExpandedLib.Testing.xml"
+      ),
       $"{stageDir}/ExpandedLib.Testing.xml"
     );
     CopyDocsIfPresent(
@@ -380,13 +394,15 @@ public sealed class PackageTestingTask : FrostingTask<BuildContext> {
     // would exist. IncludeBuildOutput=false keeps the generator out of the mods' own packages, so it is
     // named here rather than picked up from a publish directory.
     context.DotNetBuild(
-      context.Repo($"{exlib.ModFolder}/generators/ExpandedLib.Generators.csproj"),
+      context.Repo(
+        $"{BuildContext.Sibling(exlib.ModFolder, "ExpandedLib.Generators")}/ExpandedLib.Generators.csproj"
+      ),
       new DotNetBuildSettings { Configuration = context.BuildConfiguration }
     );
     context.EnsureDirectoryExists($"{stageDir}/analyzers");
     context.CopyFile(
       context.Repo(
-        $"{exlib.ModFolder}/generators/bin/{context.BuildConfiguration}/netstandard2.0/ExpandedLib.Generators.dll"
+        $"{BuildContext.Sibling(exlib.ModFolder, "ExpandedLib.Generators")}/bin/{context.BuildConfiguration}/netstandard2.0/ExpandedLib.Generators.dll"
       ),
       $"{stageDir}/analyzers/ExpandedLib.Generators.dll"
     );
