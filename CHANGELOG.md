@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2026-09-07
+
+A generated tests workflow provisions the dependency mods before the tests, so the harness guards
+that read exlib's shipped assets pass in a standalone clone. The starter transform follows exlib's
+samples, which now declare `AssetDomain` instead of hand-rolling the asset glob.
+
 ## [0.2.1] - 2026-09-07
 
 `format`, `check` and `clean` no longer fail in a repository whose manifest names no samples
