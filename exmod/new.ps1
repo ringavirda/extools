@@ -682,6 +682,11 @@ jobs:
       - name: Provision Vintage Story (server assemblies)
         run: bash scripts/exmod.sh provision game -Version "$VS_VERSION" -Kind server
 
+      # The harness guards read exlib's shipped assets; with no workspace sibling here, they come
+      # from the pinned release, extracted under .exmod/mods/.
+      - name: Provision dependency mods
+        run: bash scripts/exmod.sh provision mods
+
       - name: Build
         run: bash scripts/exmod.sh build latest -Tests
 
