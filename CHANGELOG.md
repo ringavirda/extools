@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.4] - 2026-09-07
+
+The coverage gate finds the floors file where the manifest names it, else at `tests/` or
+`infra/test/`, and runs no gate in a repository that has none, instead of failing the test command.
+
 ## [0.2.3] - 2026-09-07
 
 The manifest names the coverage floors file (`coverageFloors`, default `infra/test/coverage-floors.json`),

@@ -143,7 +143,12 @@ function Invoke-Test([string[]]$Argv) {
     if ($LASTEXITCODE -ne 0) { throw "Coverage collection failed." }
     $py = (Get-Command python -ErrorAction SilentlyContinue) ?? (Get-Command python3 -ErrorAction SilentlyContinue)
     if (-not $py) { throw "Python is required for the coverage gate but was not found (coverage.xml was still written)." }
-    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov (Get-ExmodCoverageFloors)
+    $floors = Get-ExmodCoverageFloors
+    if (-not $floors) {
+      Write-Host "No coverage floors file (manifest coverageFloors, tests/ or infra/test/) - coverage collected, no gate."
+      return
+    }
+    & $py.Source (Join-Path $ToolsRoot 'tools/coverage_gate.py') $cov $floors
     if ($LASTEXITCODE -ne 0) { throw "Coverage gate failed." }
     Write-Host "Coverage gate passed."
     return
@@ -245,7 +250,8 @@ projects and building them at once races on the same intermediate assemblies.
               Name=X|Name=Y, or a bare class name (an unqualified term is a substring match)
   -Throttle   lanes to run at once; the default is all of them
   -Coverage   instead of the lanes, collect cobertura over the solution and ratchet it against
-              the manifest's coverageFloors file - the same gate CI runs
+              the manifest's coverageFloors file, else tests/ or infra/test/coverage-floors.json;
+              no floors file, no gate - the same gate CI runs
 '@
 
 #endregion

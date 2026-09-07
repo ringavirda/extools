@@ -167,9 +167,6 @@ function Get-ExmodManifest {
   foreach ($p in @('tests', 'packages')) {
     if (-not $m.PSObject.Properties[$p]) { $m | Add-Member -NotePropertyName $p -NotePropertyValue @() }
   }
-  if (-not $m.PSObject.Properties['coverageFloors']) {
-    $m | Add-Member -NotePropertyName coverageFloors -NotePropertyValue 'tests/coverage-floors.json'
-  }
 
   $Script:ExmodManifestCache = $m
   return $m
@@ -277,10 +274,19 @@ function Get-ExmodPackages {
   return $out
 }
 
-# The coverage floors file: $Manifest.coverageFloors, defaulting to tests/coverage-floors.json.
+# The coverage floors file: $Manifest.coverageFloors when the manifest names one (a path that does
+# not exist is a manifest error), else the first of tests/coverage-floors.json and
+# infra/test/coverage-floors.json that exists, else $null - a repository with no floors runs no gate.
 function Get-ExmodCoverageFloors {
   $manifest = Get-ExmodManifest
-  return Resolve-ManifestPath 'coverageFloors' $manifest.coverageFloors
+  if ($manifest.PSObject.Properties['coverageFloors'] -and $manifest.coverageFloors) {
+    return Resolve-ManifestPath 'coverageFloors' $manifest.coverageFloors
+  }
+  foreach ($candidate in @('tests/coverage-floors.json', 'infra/test/coverage-floors.json')) {
+    $full = Join-Path $RepoRoot $candidate
+    if (Test-Path $full) { return (Resolve-Path $full).Path }
+  }
+  return $null
 }
 
 # The solution: $Manifest.solution, or the single .sln at the repo root when the manifest names none.
